@@ -529,11 +529,11 @@ equation
     // For the homotopy, we want P/V_flow to be bounded as V_flow -> 0 to avoid a very high medium
     // temperature near zero flow.
     if homotopyInitialization then
-      P = homotopy(actual=cha.power(per=per.power, V_flow=VMachine_flow, r_N=r_N, d=powDer, delta=delta),
+      P = homotopy(actual=cha.power(per=per.power, V_flow=VMachine_flow, r_N=r_N, r_N_small=delta, d=powDer),
                       simplified=VMachine_flow/V_flow_nominal*
-                            cha.power(per=per.power, V_flow=V_flow_nominal, r_N=1, d=powDer, delta=delta));
+                            cha.power(per=per.power, V_flow=V_flow_nominal, r_N=1, r_N_small=delta, d=powDer));
     else
-      P = (rho/rho_default)*cha.power(per=per.power, V_flow=VMachine_flow, r_N=r_N, d=powDer, delta=delta);
+      P = (rho/rho_default)*cha.power(per=per.power, V_flow=VMachine_flow, r_N=r_N, r_N_small=delta, d=powDer);
     end if;
     // To compute the efficiency, we set a lower bound on the electricity consumption.
     // This is needed because WFlo can be close to zero when P is zero, thereby
@@ -549,13 +549,13 @@ equation
     etaHyd = 1;
   else
     if homotopyInitialization then
-      etaHyd = homotopy(actual=cha.efficiency(per=per.hydraulicEfficiency, r_V=r_V, d=hydDer, r_N=r_N, delta=delta),
-                        simplified=cha.efficiency(per=per.hydraulicEfficiency, r_V=1,  d=hydDer, r_N=r_N, delta=delta));
-      etaMot = homotopy(actual=cha.efficiency(per=per.motorEfficiency,     r_V=r_V, d=motDer, r_N=r_N, delta=delta),
-                        simplified=cha.efficiency(per=per.motorEfficiency, r_V=1,   d=motDer, r_N=r_N, delta=delta));
+      etaHyd = homotopy(actual=cha.efficiency(per=per.hydraulicEfficiency, r_V=r_V, d=hydDer, r_N=r_N, r_N_small=delta),
+                        simplified=cha.efficiency(per=per.hydraulicEfficiency, r_V=1,  d=hydDer, r_N=r_N, r_N_small=delta));
+      etaMot = homotopy(actual=cha.efficiency(per=per.motorEfficiency,     r_V=r_V, d=motDer, r_N=r_N, r_N_small=delta),
+                        simplified=cha.efficiency(per=per.motorEfficiency, r_V=1,   d=motDer, r_N=r_N, r_N_small=delta));
     else
-      etaHyd = cha.efficiency(per=per.hydraulicEfficiency, r_V=r_V, d=hydDer, r_N=r_N, delta=delta);
-      etaMot = cha.efficiency(per=per.motorEfficiency,     r_V=r_V, d=motDer, r_N=r_N, delta=delta);
+      etaHyd = cha.efficiency(per=per.hydraulicEfficiency, r_V=r_V, d=hydDer, r_N=r_N, r_N_small=delta);
+      etaMot = cha.efficiency(per=per.motorEfficiency,     r_V=r_V, d=motDer, r_N=r_N, r_N_small=delta);
     end if;
     // To compute the electrical power, we set a lower bound for eta to avoid
     // a division by zero.

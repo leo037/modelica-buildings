@@ -130,8 +130,7 @@ First implementation.
     extends Modelica.Icons.Function;
     input
       Buildings.Fluid.Movers.BaseClasses.Characteristics.flowParametersInternal
-                                                                                per
-      "Pressure performance data";
+      per "Pressure performance data";
     input Modelica.SIunits.VolumeFlowRate V_flow "Volumetric flow rate";
     input Real r_N(unit="1") "Relative revolution, r_N=N/N_nominal";
     input Modelica.SIunits.VolumeFlowRate VDelta_flow "Small volume flow rate";
@@ -297,8 +296,10 @@ First implementation.
       "Pressure performance data";
     input Modelica.SIunits.VolumeFlowRate V_flow "Volumetric flow rate";
     input Real r_N(unit="1") "Relative revolution, r_N=N/N_nominal";
+    input Real r_N_small(unit="1", min=0.01)
+      "Small value for r_N below which the implementation is switched to deal with transition to r_N=0";
     input Real d[:] "Derivatives at support points for spline interpolation";
-    input Real delta "Small value for switching implementation around zero rpm";
+
     output Modelica.SIunits.Power P "Power consumption";
 
   protected
@@ -317,8 +318,8 @@ First implementation.
       rat:=V_flow/
               Buildings.Utilities.Math.Functions.smoothMax(
                 x1=r_N,
-                x2=0.1,
-                deltaX=delta);
+                x2=r_N_small,
+                deltaX=r_N_small/2);
       // Since the coefficients for the spline were evaluated for
       // rat_nominal = V_flow_nominal/r_N_nominal = V_flow_nominal/1, we use
       // V_flow_nominal below
@@ -386,7 +387,8 @@ First implementation.
       "Volumetric flow rate divided by nominal flow rate";
     input Real d[:] "Derivatives at support points for spline interpolation";
     input Real r_N(unit="1") "Relative revolution, r_N=N/N_nominal";
-    input Real delta "Small value for switching implementation around zero rpm";
+    input Real r_N_small(unit="1", min=0.01)
+      "Small value for r_N below which the implementation is switched to deal with transition to r_N=0";
     output Real eta(min=0, unit="1") "Efficiency";
 
   protected
@@ -397,13 +399,11 @@ First implementation.
     if n == 1 then
       eta := per.eta[1];
     else
-      // The use of the max function to avoids problems for low speeds
-      // and turned off pumps
-      rat:=r_V/
-              Buildings.Utilities.Math.Functions.smoothMax(
+      // The use of the max function avoids problems for low and zero speeds
+      rat:=r_V/Buildings.Utilities.Math.Functions.smoothMax(
                 x1=r_N,
-                x2=0.1,
-                deltaX=delta);
+                x2=r_N_small,
+                deltaX=r_N_small/2);
       i :=1;
       for j in 1:n-1 loop
          if rat > per.r_V[j] then

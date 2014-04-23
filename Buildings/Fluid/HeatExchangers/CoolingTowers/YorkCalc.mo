@@ -87,12 +87,15 @@ initial equation
             ensureMonotonicity=Buildings.Utilities.Math.Functions.isMonotonic(x=fanRelPow.eta,
                                                                               strict=false));
   // Check validity of relative fan power consumption at y=yMin and y=1
-  assert(cha.efficiency(per=fanRelPow, r_V=yMin, d=fanRelPowDer) > -1E-4,
+  assert(cha.efficiency(per=fanRelPow, r_V=yMin, r_N=1, r_N_small=0.1, d=fanRelPowDer) > -1E-4,
     "The fan relative power consumption must be non-negative for y=0."
-  + "\n   Obtained fanRelPow(0) = " + String(cha.efficiency(per=fanRelPow, r_V=yMin, d=fanRelPowDer))
+  + "\n   Obtained fanRelPow(0) = "
+  + String(cha.efficiency(per=fanRelPow, r_V=yMin, r_N=1, r_N_small=0.1, d=fanRelPowDer))
   + "\n   You need to choose different values for the parameter fanRelPow.");
-  assert(abs(1-cha.efficiency(per=fanRelPow, r_V=1, d=fanRelPowDer))<1E-4, "The fan relative power consumption must be one for y=1."
-  + "\n   Obtained fanRelPow(1) = " + String(cha.efficiency(per=fanRelPow, r_V=1, d=fanRelPowDer))
+  assert(abs(1-cha.efficiency(per=fanRelPow, r_V=1, r_N=1, r_N_small=0.1, d=fanRelPowDer))<1E-4,
+    "The fan relative power consumption must be one for y=1."
+  + "\n   Obtained fanRelPow(1) = "
+  + String(cha.efficiency(per=fanRelPow, r_V=1, r_N=1, r_N_small=0.1, d=fanRelPowDer))
   + "\n   You need to choose different values for the parameter fanRelPow."
   + "\n   To increase the fan power, change fraPFan_nominal or PFan_nominal.");
 equation
@@ -147,11 +150,14 @@ equation
 
   // Actual approach temperature and fan power consumption,
   // which depends on forced vs. free convection.
-  // The transition is for y in [yMin-yMin/10, yMin]
+  // The transition is for y in [yMin-yMin/10, yMin].
+  // Here, we set r_N=1 because the data for the fan relative power
+  // are only a function of the relative volume flow rate (by definition
+  // of the parameters of this model).
   [TAppAct, PFan] = Buildings.Utilities.Math.Functions.spliceFunction(
                                                  pos=[TAppCor,
                                                  cha.efficiency(
-                                                     per=fanRelPow, r_V=y, d=fanRelPowDer) * PFan_nominal],
+                                                     per=fanRelPow, r_V=y, r_N=1, r_N_small=0.1, d=fanRelPowDer) * PFan_nominal],
                                                  neg=[TAppFreCon, 0],
                                                  x=y-yMin+yMin/20,
                                                  deltax=yMin/20);
@@ -255,6 +261,13 @@ control law to compute the input signal <code>y</code>.
 </p>
 </html>", revisions="<html>
 <ul>
+<li>
+April 23, 2014, by Michael Wetter:<br/>
+Updated model due to change in the function
+<a href=\"modelica://Buildings.Fluid.Movers.BaseClasses.Characteristics.efficiency\">
+Buildings.Fluid.Movers.BaseClasses.Characteristics.efficiency</a>.
+This model yields the same results as before.
+</li>
 <li>
 October 9, 2013, by Michael Wetter:<br/>
 Simplified the implementation for the situation if 
