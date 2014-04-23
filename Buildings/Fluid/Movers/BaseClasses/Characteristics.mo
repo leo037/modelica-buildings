@@ -330,10 +330,10 @@ First implementation.
       // Extrapolate or interpolate the data
       P:=r_N^3*Buildings.Utilities.Math.Functions.cubicHermiteLinearExtrapolation(
                   x=rat,
-                  x1=data.V_flow[i],
-                  x2=data.V_flow[i + 1],
-                  y1=data.P[i],
-                  y2=data.P[i + 1],
+                  x1=per.V_flow[i],
+                  x2=per.V_flow[i + 1],
+                  y1=per.P[i],
+                  y2=per.P[i + 1],
                   y1d=d[i],
                   y2d=d[i+1]);
     end if;
