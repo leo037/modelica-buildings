@@ -298,6 +298,7 @@ First implementation.
     input Modelica.SIunits.VolumeFlowRate V_flow "Volumetric flow rate";
     input Real r_N(unit="1") "Relative revolution, r_N=N/N_nominal";
     input Real d[:] "Derivatives at support points for spline interpolation";
+    input Real delta "Small value for switching implementation around zero rpm";
     output Modelica.SIunits.Power P "Power consumption";
 
   protected
@@ -317,7 +318,7 @@ First implementation.
               Buildings.Utilities.Math.Functions.smoothMax(
                 x1=r_N,
                 x2=0.1,
-                deltaX=0.05);
+                deltaX=delta);
       // Since the coefficients for the spline were evaluated for
       // rat_nominal = V_flow_nominal/r_N_nominal = V_flow_nominal/1, we use
       // V_flow_nominal below
@@ -384,24 +385,34 @@ First implementation.
     input Real r_V(unit="1")
       "Volumetric flow rate divided by nominal flow rate";
     input Real d[:] "Derivatives at support points for spline interpolation";
+    input Real r_N(unit="1") "Relative revolution, r_N=N/N_nominal";
+    input Real delta "Small value for switching implementation around zero rpm";
     output Real eta(min=0, unit="1") "Efficiency";
 
   protected
     Integer n = size(data.r_V, 1) "Number of data points";
+    Real rat "Ratio of r_V/r_N";
     Integer i "Integer to select data interval";
   algorithm
     if n == 1 then
       eta := data.eta[1];
     else
+      // The use of the max function to avoids problems for low speeds
+      // and turned off pumps
+      rat:=r_V/
+              Buildings.Utilities.Math.Functions.smoothMax(
+                x1=r_N,
+                x2=0.1,
+                deltaX=delta);
       i :=1;
       for j in 1:n-1 loop
-         if r_V > data.r_V[j] then
+         if rat > data.r_V[j] then
            i := j;
          end if;
       end for;
       // Extrapolate or interpolate the data
       eta:=Buildings.Utilities.Math.Functions.cubicHermiteLinearExtrapolation(
-                  x=r_V,
+                  x=rat,
                   x1=data.r_V[i],
                   x2=data.r_V[i + 1],
                   y1=data.eta[i],
@@ -417,11 +428,12 @@ This function computes the fan or pump efficiency for given normalized volume fl
 and performance data. The efficiency is
 </p>
 <p align=\"center\" style=\"font-style:italic;\">
-  &eta; = s(r<sub>V</sub>, d),
+  &eta; = s(r<sub>V</sub>/r<sub>N</sub>, d),
 </p>
 <p>
 where
 <i>&eta;</i> is the efficiency,
+<i>r<sub>N</sub></i> is the normalized fan speed,
 <i>r<sub>V</sub></i> is the normalized volume flow rate, and
 <i>d</i> are performance data for fan or pump efficiency.
 </p>
@@ -433,6 +445,14 @@ If the data <i>d</i> define a monotone decreasing sequence, then
 </p>
 </html>", revisions="<html>
 <ul>
+<li>
+April 19, 2014, by Filip Jorissen:<br/>
+Changed polynomial to be evaluated at <code>r_V/r_N</code>
+instead of <code>r_V</code> to properly account for the
+scaling law. See
+<a href=\"https://github.com/lbl-srg/modelica-buildings/pull/202\">#202</a>
+for a discussion and validation.
+</li>
 <li>
 September 28, 2011, by Michael Wetter:<br/>
 First implementation.
