@@ -1,14 +1,15 @@
 FlowMachine_y
 FlowMachine_y_linear
 FlowMachine_Nrpm
+FlowMachine_Nrpm_Data
+FlowMachine_Nrpm_stratos
 FlowMachine_dp
 FlowMachine_m_flow
 ControlledFlowMachineDynamic
 ControlledFlowMachine
-FlowMachine
 FlowMachineFeedbackControl
 FlowMachineParallel_y
 FlowMachineSeries_y
 FlowMachine_y_pumpCurves
 BaseClasses
-FlowMachine_Nrpm_stratos
+

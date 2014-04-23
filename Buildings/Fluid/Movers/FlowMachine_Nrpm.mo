@@ -2,8 +2,7 @@ within Buildings.Fluid.Movers;
 model FlowMachine_Nrpm
   "Fan or pump with ideally controlled speed Nrpm as input signal"
   extends Buildings.Fluid.Movers.BaseClasses.PrescribedFlowMachine;
-
-  Modelica.Blocks.Interfaces.RealInput Nrpm(unit="1/min")
+  Modelica.Blocks.Interfaces.RealInput Nrpm(unit="1/min", min=per.N_min, max=per.N_max)
     "Prescribed rotational speed"
     annotation (Placement(transformation(
         extent={{-20,-20},{20,20}},
@@ -20,7 +19,7 @@ equation
       color={0,0,127},
       smooth=Smooth.None));
     connect(filter.y, N_actual) annotation (Line(
-      points={{34.7,88},{38.35,88},{38.35,70},{50,70}},
+      points={{34.7,88},{38.35,88},{38.35,50},{110,50}},
       color={0,0,127},
       smooth=Smooth.None));
     connect(filter.y, N_filtered) annotation (Line(
@@ -30,7 +29,7 @@ equation
 
   else
     connect(Nrpm, N_actual) annotation (Line(
-      points={{1.11022e-15,120},{0,120},{0,70},{50,70}},
+      points={{1.11022e-15,120},{0,120},{0,50},{110,50}},
       color={0,0,127},
       smooth=Smooth.None));
   end if;
@@ -59,6 +58,10 @@ User's Guide</a> for more information.
 </html>",
       revisions="<html>
 <ul>
+<li>
+April 17, 2014, by Filip Jorissen:<br/>
+Implemented records for supplying pump/fan parameters
+</li>
 <li>
 February 14, 2012, by Michael Wetter:<br/>
 Added filter for start-up and shut-down transient.

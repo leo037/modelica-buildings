@@ -1,17 +1,17 @@
 within Buildings.Fluid.Movers.Examples;
-model FlowMachine_Nrpm
+model FlowMachine_Nrpm "Fan with zero mass flow rate and speed as input"
   extends Modelica.Icons.Example;
  extends Buildings.Fluid.Movers.Examples.BaseClasses.FlowMachine_ZeroFlow(
     gain(k=1500),
     redeclare Buildings.Fluid.Movers.FlowMachine_Nrpm floMacSta(
       redeclare package Medium = Medium,
-      pressure(V_flow={0,m_flow_nominal,2*m_flow_nominal}/1.2,
-               dp={2*dp_nominal,dp_nominal,0}),
+      per(pressure(V_flow={0,m_flow_nominal,2*m_flow_nominal}/1.2,
+               dp={2*dp_nominal,dp_nominal,0})),
       filteredSpeed=false),
     redeclare Buildings.Fluid.Movers.FlowMachine_Nrpm floMacDyn(
       redeclare package Medium = Medium,
-      pressure(V_flow={0,m_flow_nominal,2*m_flow_nominal}/1.2,
-               dp={2*dp_nominal,dp_nominal,0}),
+      per(pressure(V_flow={0,m_flow_nominal,2*m_flow_nominal}/1.2,
+               dp={2*dp_nominal,dp_nominal,0})),
       filteredSpeed=false));
 
 equation
@@ -24,8 +24,8 @@ equation
       color={0,0,127},
       smooth=Smooth.None));
   annotation (
-    Diagram(coordinateSystem(preserveAspectRatio=true, extent={{-100,-100},{160,
-            160}})),
+    Diagram(coordinateSystem(preserveAspectRatio=false,extent={{-100,-100},{160,
+            160}}), graphics),
 experiment(StopTime=1.0),
 __Dymola_Commands(file="modelica://Buildings/Resources/Scripts/Dymola/Fluid/Movers/Examples/FlowMachine_Nrpm.mos"
         "Simulate and plot"),
